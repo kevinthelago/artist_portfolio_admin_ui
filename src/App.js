@@ -1,25 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from 'react';
+import Album from './components/Album';
+import './app.css';
+import './reset.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+    const [artist, setArtist] = useState({
+        albums: [],
+        email: "",
+        about: "",
+        links: [],
+        image: ""
+    })
+
+    useEffect(() => {
+        const fetchArtist = async () => {
+            fetch(
+                process.env.REACT_APP_ARTISTS_URL + 
+                process.env.REACT_APP_ARTIST_UUID
+            )
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    setArtist(data)
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        }
+
+        fetchArtist();
+    }, []);
+
+    return (
+        <div id='app'>
+            {artist.albums ? artist.albums.map(album => 
+                <Album key={album.name} album={album} />
+            ) : ""}
+        </div>
+    );
 }
 
 export default App;
