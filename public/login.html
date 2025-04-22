@@ -6,8 +6,9 @@
     <title>Login</title>
 </head>
 <body>
-    <script>
-        window.location.replace("%PUBLIC_URL%/oauth2/authorization/google")
-    </script>
+    <a id="skip" href="/oauth2/authorization/google"></a>
 </body>
+    <script>
+        document.getElementById("skip").click()
+    </script>
 </html>
