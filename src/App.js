@@ -81,7 +81,7 @@ const App = () => {
     const updateArtist = () => {
         console.log(JSON.stringify(artist))
         fetch(
-            process.env.REACT_APP_ARTISTS_URL,
+            process.env.REACT_APP_ARTISTS_URL.slice(0, -1),
             {
                 method: 'PUT',
                 body: JSON.stringify(artist)
