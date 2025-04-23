@@ -79,9 +79,9 @@ const App = () => {
     }, []);
 
     const updateArtist = () => {
+        console.log(JSON.stringify(artist))
         fetch(
-            process.env.REACT_APP_ARTISTS_URL + 
-            artist.uuid,
+            process.env.REACT_APP_ARTISTS_URL,
             {
                 method: 'PUT',
                 body: JSON.stringify(artist)
