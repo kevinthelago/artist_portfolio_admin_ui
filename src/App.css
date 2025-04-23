@@ -1,9 +1,25 @@
-#root {
-  font-family: var(--font-family);
-  height: 100vh;
+#artist-card {
+  width: calc(100% - calc(var(--ui-margin) * 2) - calc(var(--ui-padding) * 2));
+  border-radius: var(--ui-border-radius);
+  background: var(--ui-background-color);
+  color: var(--ui-element-color);
+  margin: var(--ui-margin);
+  padding: var(--ui-padding);
 }
 
-#app {
-  height: 100%;
+.artist-card-key {
+  height: 32px;
   width: 100%;
+  /* background-color: red; */
+}
+
+.artist-card-value {
+  height: 32px;
+  width: 100%;
+  /* background-color: blue; */
+}
+
+#albums {
+  width: 100%;
+  background-color: red;
 }
