@@ -4,14 +4,14 @@ import './app.css';
 import './reset.css';
 
 const EditableValue = (props) => {
-    const [value, setValue] = useState(props.value);
+    // const [value, setValue] = useState(props.value);
 
-    const handleChange = (event) => {
-        setValue(event.target.value);
-    }
+    // const handleChange = (event) => {
+    //     setValue(event.target.value);
+    // }
 
     return (
-        <input autoFocus onChange={(e) => handleChange(e)} value={value} className='artist-card-value editable-value'>
+        <input autoFocus onChange={(e) => props.handleValueChange(e, props.property)} value={props.value} className='artist-card-value editable-value'>
 
         </input>
     )
@@ -41,13 +41,13 @@ const ArtistDetail = (props) => {
         <div
             onKeyDown={(e) => { handleKeyDown(e) }}
             onClick={() => { handleClick() }}
-            id={"artist-card-" + props.title.toLowerCase()}
+            id={"artist-card-" + props.property.toLowerCase()}
         >
             <div className='artist-card-key'>
-                {props.title}
+                {props.property}
             </div>
             {isEditing ?
-                <EditableValue value={props.value} /> :
+                <EditableValue handleValueChange={props.handleValueChange} value={props.value} property={props.property} /> :
                 <NoneEditableValue value={props.value} />
             }
         </div>
@@ -55,7 +55,8 @@ const ArtistDetail = (props) => {
 }
 
 const App = () => {
-    const hiddenProperties = ["uuid", "albums"]
+    const hiddenProperties = ["uuid", "albums", "pieces", "url"]
+    const [albumCount, setAlbumCount] = useState(0);
     const [value, setValue] = useState(0);
     const [artist, setArtist] = useState({
         albums: [],
@@ -79,18 +80,20 @@ const App = () => {
     }, []);
 
     const updateArtist = () => {
-        console.log(JSON.stringify(artist))
         fetch(
             process.env.REACT_APP_ARTISTS_URL.slice(0, -1),
             {
                 method: 'PUT',
-                body: JSON.stringify(artist)
+                body: JSON.stringify(artist),
+                headers: {
+                    "Content-Type": "application/json"
+                }
             }
         ).then(response => 
             response.json()
-        ).then(data => 
+        ).then(data => {
             setArtist(data)
-        ).catch(error => 
+        }).catch(error => 
             console.log(error)
         )
     }
@@ -110,7 +113,7 @@ const App = () => {
         ).then(data => {
             artist.albums.push(data);
             setArtist(artist);
-            setValue(value => value + 1);
+            setAlbumCount(albumCount => albumCount + 1);
         }).catch(error => 
             console.log(error)
         );
@@ -125,9 +128,15 @@ const App = () => {
         ).then(response => {
             artist.albums = artist.albums.filter(album => album.uuid !== uuid);
             setArtist(artist);
-            setValue(value => value - 1);
+            setAlbumCount(albumCount => albumCount - 1);
         })
     }
+
+    const handleValueChange = (event, property) => {
+        artist[property] = event.target.value;
+        setArtist(artist);
+        setValue(value => value > 1 ? value - 1 : value + 1)
+    } 
 
     return (
         <div id='app'>
@@ -136,9 +145,10 @@ const App = () => {
                     if (hiddenProperties.includes(property)) return "";
                     return <ArtistDetail
                         key={property}
-                        title={property}
+                        property={property}
                         value={artist[property]}
                         updateArtist={updateArtist}
+                        handleValueChange={handleValueChange}
                     />
                 })}
             </div>

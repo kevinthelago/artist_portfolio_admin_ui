@@ -53,6 +53,57 @@ const VisualPiece = (props) => (
     </div>
 )
 
+const EditableValue = (props) => {
+    const [value, setValue] = useState(props.value);
+
+    const handleChange = (event) => {
+        setValue(event.target.value);
+    }
+
+    return (
+        <input autoFocus onChange={(e) => handleChange(e)} value={value} className='piece-card-value editable-value'>
+
+        </input>
+    )
+};
+
+const NoneEditableValue = (props) => (
+    <div className='piece-card-value none-editable-value'>
+        {props.value}
+    </div>
+);
+
+
+const PieceDetail = (props) => {
+    const [isEditing, setIsEditing] = useState(false);
+
+    const handleClick = () => {
+        setIsEditing(true);
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            setIsEditing(false);
+        }
+    }
+
+    return (
+        <div
+            onKeyDown={(e) => { handleKeyDown(e) }}
+            onClick={() => { handleClick() }}
+            id={"album-card-" + props.title.toLowerCase()}
+        >
+            <div className='album-card-key'>
+                {props.title}
+            </div>
+            {isEditing ?
+                <EditableValue value={props.value} /> :
+                <NoneEditableValue value={props.value} />
+            }
+        </div>
+    )
+}
+
 const Piece = (props) => {
     let [isEditing, setIsEditing] = useState(false);
 

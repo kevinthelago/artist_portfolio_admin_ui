@@ -1,5 +1,11 @@
 .album {
-    /* height: 30px; */
+    height: 30px;
     width: 100%;
     background-color: var(--ui-primary-background-color);
+    border-radius: var(--ui-border-radius);
+    margin-top: var(--ui-margin);
+}
+
+.album.open {
+    height: 100%;
 }

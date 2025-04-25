@@ -56,26 +56,39 @@ const Album = (props) => {
     let [isOpen, setIsOpen] = useState(false)
 
     const open = () => {
-        setIsOpen(!isOpen)
+        setIsOpen(true)
     }
 
-    return(
+    return (
         <div className={isOpen ? "album open" : "album"} onClick={() => open()}>
-            {isOpen ? "" :     
-            <div className='artist-card-value none-editable-value'>
-                {props.album.name}
-            </div>}
-            {isOpen ? Object.getOwnPropertyNames(props.album).map(property => {
-                if (props.hiddenProperties.includes(property)) return "";
-                return <AlbumDetail
-                    key={property}
-                    title={property}
-                    value={props.album[property]}
-                />
-            }) : ""}
-            {isOpen ? props.pieces?.map(piece => 
-                <Piece piece={piece} />
-            ) : ""}
+            {isOpen ? "" :
+                <div className="album-card">
+                    <div className='album-card-value none-editable-value'>
+                        {props.album.name}
+                    </div>
+                </div>
+            }
+            {isOpen ?
+                <div className="album-card">
+                    {Object.getOwnPropertyNames(props.album).map(property => {
+                        if (props.hiddenProperties.includes(property)) return "";
+                        return <AlbumDetail
+                            key={property}
+                            title={property}
+                            value={props.album[property]}
+                        />
+                    })}
+                </div> : ""}
+            {isOpen ?
+                <div>
+                    {props.pieces?.map(piece =>
+                        <Piece piece={piece} />
+                    )}
+                    <button>
+                        Add Piece
+                    </button>
+                </div>
+                : ""}
         </div>
     )
 }
