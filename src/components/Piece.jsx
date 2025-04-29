@@ -5,11 +5,12 @@ import './piece.css';
 
 const EditableValue = (props) => {
     return (
-        <input 
-            autoFocus 
+        <input
+            autoFocus
             placeholder={`type something for this piece's ${props.property}`}
-            onChange={(e) => props.handleValueChange(e, props.property)} 
-            value={props.value === null ? "" : props.value} 
+            onChange={(e) => props.handleValueChange(e, props.property)}
+            onBlur={() => props.handleStopEditAndUpdate()}
+            value={props.value === null ? "" : props.value}
             className='list-item-value editable-value'
         />
     )
@@ -25,9 +26,13 @@ const NoneEditableValue = (props) => (
 const PieceDetail = (props) => {
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            props.handleStopEdit();
-            props.updatePiece();
+            handleStopEditAndUpdate();
         }
+    }
+
+    const handleStopEditAndUpdate = () => {
+        props.handleStopEdit();
+        props.updatePiece();
     }
 
     return (
@@ -41,7 +46,12 @@ const PieceDetail = (props) => {
                 {props.property}
             </div>
             {props.isEditing ?
-                <EditableValue value={props.value} property={props.property} handleValueChange={props.handleValueChange} /> :
+                <EditableValue
+                    value={props.value}
+                    property={props.property}
+                    handleValueChange={props.handleValueChange}
+                    handleStopEditAndUpdate={handleStopEditAndUpdate}
+                /> :
                 <NoneEditableValue value={props.value} />
             }
         </div>
@@ -52,8 +62,8 @@ const PieceBar = (props) => {
     return (
         <div className="list-item-bar flexe">
             {props.isOpen ?
-                <>  
-                    <button 
+                <>
+                    <button
                         className="close-list-item-button"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -62,7 +72,7 @@ const PieceBar = (props) => {
                     >
                         <FontAwesomeIcon icon={faTrash} />
                     </button>
-                    <button 
+                    <button
                         className="close-list-item-button"
                         onClick={(e) => {
                             e.stopPropagation();
@@ -78,11 +88,10 @@ const PieceBar = (props) => {
             }
         </div>
     )
-} 
+}
 
 const Piece = (props) => {
     const [piece, setPiece] = useState(props.piece);
-    const [value, setValue] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [editingFields, setEditingFields] = useState({});
 
@@ -106,20 +115,20 @@ const Piece = (props) => {
     }
 
     const handleStopEdit = () => {
-        setEditingFields(prev => 
+        setEditingFields(prev =>
             Object.getOwnPropertyNames(prev)
-            .reduce((acc, property) => {
-                acc[property] = false;
-                return acc
-            }, {})
+                .reduce((acc, property) => {
+                    acc[property] = false;
+                    return acc
+                }, {})
         )
     }
 
     const handleValueChange = (event, property) => {
-        piece[property] = event.target.value;
-        setPiece(piece);
-        // This stupid little bit of math is just to force re-render for a state that only checks object reference
-        setValue(value => value > 1 ? value - 1 : value + 1);
+        setPiece(piece => ({
+            ...piece,
+            [property]: event.target.value
+        }));
     }
 
     const open = () => {
@@ -132,7 +141,7 @@ const Piece = (props) => {
 
     return (
         <div className={isOpen ? "piece open" : "piece"} onClick={() => open()}>
-            <PieceBar piece={piece} isOpen={isOpen} close={close} delete={() => props.deletePiece(props.piece.uuid)}/>
+            <PieceBar piece={piece} isOpen={isOpen} close={close} delete={() => props.deletePiece(props.piece.uuid)} />
             {isOpen ?
                 <div className="piece-card">
                     {Object.getOwnPropertyNames(piece).map(property => {

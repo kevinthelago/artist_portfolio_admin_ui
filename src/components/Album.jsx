@@ -10,6 +10,7 @@ const EditableValue = (props) => {
             autoFocus 
             placeholder={`type something for this album's ${props.property}`}
             onChange={(e) => props.handleValueChange(e, props.property)} 
+            onBlur={() => props.handleStopEditAndUpdate()}
             value={props.value === null ? "" : props.value} 
             className='list-item-value editable-value'
         />
@@ -25,9 +26,13 @@ const NoneEditableValue = (props) => (
 const AlbumDetail = (props) => {
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            props.handleStopEdit();
-            props.updateAlbum();
+            handleStopEditAndUpdate()
         }
+    }
+
+    const handleStopEditAndUpdate = () => {
+        props.handleStopEdit();
+        props.updateAlbum();
     }
 
     return (
@@ -41,7 +46,12 @@ const AlbumDetail = (props) => {
                 {props.property}
             </div>
             {props.isEditing ?
-                <EditableValue value={props.value} property={props.property} handleValueChange={props.handleValueChange} /> :
+                <EditableValue 
+                value={props.value} 
+                property={props.property} 
+                handleValueChange={props.handleValueChange} 
+                handleStopEditAndUpdate={handleStopEditAndUpdate}
+                /> :
                 <NoneEditableValue value={props.value} property={props.property} />
             }
         </div>
@@ -117,10 +127,10 @@ const Album = (props) => {
     }
 
     const handleValueChange = (event, property) => {
-        album[property] = event.target.value;
-        setAlbum(album);
-        // This stupid little bit of math is just to force re-render for a state that only checks object reference
-        setValue(value => value > 1 ? value - 1 : value + 1);
+        setAlbum(album => ({
+            ...album,
+            [property]: event.target.value
+        }));
     }
 
     const open = () => {

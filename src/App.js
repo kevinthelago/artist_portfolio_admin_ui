@@ -143,9 +143,6 @@ const App = () => {
                 method: 'DELETE'
             }
         ).then(response => {
-            artist.albums = artist.albums.filter(album => album.uuid !== uuid);
-            setArtist(artist);
-            
             setArtist(artist => {
                 const updatedAlbums = artist.albums.map(album => ({
                     ...album,
