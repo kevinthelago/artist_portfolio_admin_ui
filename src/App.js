@@ -49,9 +49,6 @@ const ArtistDetail = (props) => {
 const App = () => {
     const hiddenProperties = ["uuid", "albums", "pieces", "url", "file"]
     const [editingFields, setEditingFields] = useState({});
-    const [albumRerenderCount, setAlbumRerenderCount] = useState(0);
-    const [pieceRerenderCount, setPieceRerenderCount] = useState(0);
-    const [value, setValue] = useState(0);
     const [artist, setArtist] = useState({
         albums: [],
         email: "",
@@ -59,7 +56,6 @@ const App = () => {
         links: [],
         image: ""
     });
-    // albumRerenderCount, pieceRerenderCount, value;
 
     useEffect(() => {
         fetch(
@@ -114,8 +110,12 @@ const App = () => {
         ).then(response =>
             response.json()
         ).then(data => {
-            artist.albums.push(data);
-            setAlbumRerenderCount(albumRerenderCount => albumRerenderCount + 1);
+            setArtist(artist => {
+                return {
+                    ...artist,
+                    albums: [...(artist.albums || []), data]
+                };
+            });
         }).catch(error =>
             console.log(error)
         );
@@ -145,8 +145,21 @@ const App = () => {
         ).then(response => {
             artist.albums = artist.albums.filter(album => album.uuid !== uuid);
             setArtist(artist);
-            setAlbumRerenderCount(albumRerenderCount => albumRerenderCount - 1);
-        })
+            
+            setArtist(artist => {
+                const updatedAlbums = artist.albums.map(album => ({
+                    ...album,
+                    pieces: album.pieces?.filter(piece => piece.uuid !== uuid) || []
+                }));
+            
+                return {
+                    ...artist,
+                    albums: updatedAlbums
+                };
+            });
+        }).catch(error => 
+            console.log(error)
+        )
     }
 
     const createPiece = (uuid) => {
@@ -161,12 +174,22 @@ const App = () => {
         ).then(response =>
             response.json()
         ).then(data => {
-            console.log(artist)
-            let album = artist.albums.find(album => album.uuid === uuid);
-            album.pieces.push(data);
-
-            console.log(artist)
-            setPieceRerenderCount(pieceCount => pieceCount + 1)
+            setArtist(artist => {
+                const updatedAlbums = artist.albums.map(album => {
+                    if (album.uuid === uuid) {
+                        return {
+                            ...album,
+                            pieces: [...album.pieces, data]
+                        };
+                    }
+                    return album;
+                });
+            
+                return {
+                    ...artist,
+                    albums: updatedAlbums
+                };
+            });
         }).catch(error =>
             console.log(error)
         )
@@ -189,13 +212,23 @@ const App = () => {
 
     const deletePiece = (uuid) => {
         fetch(
-            process.env.REACT_APP_ALBUMS_URL + uuid,
+            process.env.REACT_APP_PIECES_URL + uuid,
             {
                 method: 'DELETE'
             }
-        ).then(response =>
-            console.log(response)
-        ).catch(error =>
+        ).then(response => {
+            setArtist(artist => {
+                const updatedAlbums = artist.albums.map(album => ({
+                    ...album,
+                    pieces: album.pieces?.filter(piece => piece.uuid !== uuid) || []
+                }));
+            
+                return {
+                    ...artist,
+                    albums: updatedAlbums
+                };
+            });
+        }).catch(error =>
             console.log(error)
         )
     }
@@ -203,8 +236,6 @@ const App = () => {
     const handleValueChange = (event, property) => {
         artist[property] = event.target.value;
         setArtist(artist);
-        // This stupid little bit of math is just to force re-render for a state that only checks object reference
-        setValue(value => value > 1 ? value - 1 : value + 1);
     }
 
     const handleEditProperty = (property) => {
@@ -249,6 +280,7 @@ const App = () => {
                         key={album.uuid}
                         hiddenProperties={hiddenProperties}
                         album={album}
+                        pieces={album.pieces}
                         createPiece={createPiece}
                         updatePiece={updatePiece}
                         deletePiece={deletePiece}

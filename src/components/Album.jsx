@@ -82,6 +82,7 @@ const AlbumBar = (props) => {
 
 const Album = (props) => {
     const [album, setAlbum] = useState(props.album);
+    // const [pieces, setPieces] = useState(props.album.pieces);
     const [value, setValue] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [editingFields, setEditingFields] = useState({});
@@ -151,7 +152,7 @@ const Album = (props) => {
                 </div> : ""}
             {isOpen ?
                 <div className="album-pieces">
-                    {album.pieces?.map(piece => 
+                    {props.pieces?.map(piece => 
                         <Piece 
                             key={piece.uuid} 
                             hiddenProperties={props.hiddenProperties} 

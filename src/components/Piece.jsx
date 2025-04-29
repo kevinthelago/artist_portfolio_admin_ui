@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import './piece.css';
 
 const EditableValue = (props) => {
     return (
         <input 
             autoFocus 
+            placeholder={`type something for this piece's ${props.property}`}
             onChange={(e) => props.handleValueChange(e, props.property)} 
             value={props.value === null ? "" : props.value} 
             className='list-item-value editable-value'
@@ -52,6 +53,15 @@ const PieceBar = (props) => {
         <div className="list-item-bar flexe">
             {props.isOpen ?
                 <>  
+                    <button 
+                        className="close-list-item-button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            props.delete();
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faTrash} />
+                    </button>
                     <button 
                         className="close-list-item-button"
                         onClick={(e) => {
@@ -122,7 +132,7 @@ const Piece = (props) => {
 
     return (
         <div className={isOpen ? "piece open" : "piece"} onClick={() => open()}>
-            <PieceBar piece={piece} isOpen={isOpen} close={close}/>
+            <PieceBar piece={piece} isOpen={isOpen} close={close} delete={() => props.deletePiece(props.piece.uuid)}/>
             {isOpen ?
                 <div className="piece-card">
                     {Object.getOwnPropertyNames(piece).map(property => {
