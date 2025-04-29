@@ -1,9 +1,10 @@
 :root {
   --ui-margin: 1em;
   --ui-padding: 1em;
-  --ui-background-color: #666666;
-  --ui-border-radius: 1em;
+  --ui-background-color: #333333;
+  --ui-border-radius: .2em;
   --ui-element-color: white;
+  --ui-list-item-height: 30px;
 }
 
 body {
@@ -62,4 +63,16 @@ code {
 
   --black: rgb(0, 0, 0);
   --white: rgb(255, 255, 255);
+}
+
+.flexc {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flexe {
+  display: flex;
+  justify-content: end;
+  align-items: center;
 }

@@ -7,14 +7,55 @@
   padding: var(--ui-padding);
 }
 
-.artist-card-key {
-  height: 32px;
+.list-item {
+  height: var(--ui-list-item-height);
   width: 100%;
 }
 
-.artist-card-value {
-  height: 32px;
+.list-item-bar {
+  height: var(--ui-list-item-height);
   width: 100%;
+}
+
+.list-item-key {
+  height: var(--ui-list-item-height);
+  width: 80px;
+  padding-right: var(--ui-padding);
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.list-item-value {
+  height: var(--ui-list-item-height);
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+input.list-item-value {
+  cursor: text;
+  outline: none;
+}
+
+.add-list-item-button {
+  height: var(--ui-list-item-height);
+  width: 100%;
+  padding: var(--ui-padding);
+  cursor: pointer;
+}
+
+.close-list-item-button {
+  height: var(--ui-list-item-height);
+  width: var(--ui-list-item-height);
+  transition: .3s;
+  cursor: pointer;
+}
+
+.close-list-item-button:hover {
+  transform: scale(1.2);
 }
 
 #albums {
@@ -24,4 +65,13 @@
   color: var(--ui-element-color);
   margin: var(--ui-margin);
   padding: var(--ui-padding);
+}
+
+@keyframes openUIListItem {
+  0% {
+      max-height: var(--ui-list-item-height);
+  }
+  100% {
+      max-height: 3000px;
+  }
 }

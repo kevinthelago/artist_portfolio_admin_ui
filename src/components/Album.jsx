@@ -1,90 +1,169 @@
 import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
 import Piece from './Piece';
 import './album.css';
 
 const EditableValue = (props) => {
-    const [value, setValue] = useState(props.value);
-
-    const handleChange = (event) => {
-        setValue(event.target.value);
-    }
-
     return (
-        <input autoFocus onChange={(e) => handleChange(e)} value={value} className='artist-card-value editable-value'>
-
-        </input>
+        <input 
+            autoFocus 
+            placeholder={`type something for this album's ${props.property}`}
+            onChange={(e) => props.handleValueChange(e, props.property)} 
+            value={props.value === null ? "" : props.value} 
+            className='list-item-value editable-value'
+        />
     )
 };
 
 const NoneEditableValue = (props) => (
-    <div className='artist-card-value none-editable-value'>
+    <div className='list-item-value none-editable-value'>
         {props.value}
     </div>
 );
 
 const AlbumDetail = (props) => {
-    const [isEditing, setIsEditing] = useState(false);
-
-    const handleClick = () => {
-        setIsEditing(true);
-    }
-
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            setIsEditing(false);
+            props.handleStopEdit();
+            props.updateAlbum();
         }
     }
 
     return (
         <div
             onKeyDown={(e) => { handleKeyDown(e) }}
-            onClick={() => { handleClick() }}
-            id={"album-card-" + props.title.toLowerCase()}
+            onClick={() => { props.handleEditProperty(props.property) }}
+            id={"album-card-" + props.property.toLowerCase()}
+            className="list-item flexc"
         >
-            <div className='album-card-key'>
-                {props.title}
+            <div className='list-item-key'>
+                {props.property}
             </div>
-            {isEditing ?
-                <EditableValue value={props.value} /> :
-                <NoneEditableValue value={props.value} />
+            {props.isEditing ?
+                <EditableValue value={props.value} property={props.property} handleValueChange={props.handleValueChange} /> :
+                <NoneEditableValue value={props.value} property={props.property} />
             }
         </div>
     )
 }
 
+const AlbumBar = (props) => {
+    return (
+        <div className="list-item-bar flexe">
+            {props.isOpen ?
+                <>  
+                    <button 
+                        className="close-list-item-button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            props.delete();
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                    <button 
+                        className="close-list-item-button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            props.close();
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faXmark} />
+                    </button>
+                </> :
+                <div>
+                    {props.album.name}
+                </div>
+            }
+        </div>
+    )
+} 
+
 const Album = (props) => {
-    let [isOpen, setIsOpen] = useState(false)
+    const [album, setAlbum] = useState(props.album);
+    const [value, setValue] = useState(0);
+    const [isOpen, setIsOpen] = useState(false);
+    const [editingFields, setEditingFields] = useState({});
+
+    useEffect(() => {
+        setEditingFields(
+            Object.getOwnPropertyNames(props.album)
+                .filter(property => !props.hiddenProperties.includes(property))
+                .reduce((acc, property) => {
+                    acc[property] = false;
+                    return acc
+                }, {})
+        );
+    }, [])
+
+    const handleEditProperty = (property) => {
+        handleStopEdit()
+        setEditingFields(editingFields => ({
+            ...editingFields,
+            [property]: true
+        }))
+    }
+
+    const handleStopEdit = () => {
+        setEditingFields(prev => 
+            Object.getOwnPropertyNames(prev)
+            .reduce((acc, property) => {
+                acc[property] = false;
+                return acc
+            }, {})
+        )
+    }
+
+    const handleValueChange = (event, property) => {
+        album[property] = event.target.value;
+        setAlbum(album);
+        // This stupid little bit of math is just to force re-render for a state that only checks object reference
+        setValue(value => value > 1 ? value - 1 : value + 1);
+    }
 
     const open = () => {
         setIsOpen(true)
     }
 
+    const close = () => {
+        setIsOpen(false)
+    }
+
     return (
         <div className={isOpen ? "album open" : "album"} onClick={() => open()}>
-            {isOpen ? "" :
-                <div className="album-card">
-                    <div className='album-card-value none-editable-value'>
-                        {props.album.name}
-                    </div>
-                </div>
-            }
+            <AlbumBar album={album} isOpen={isOpen} close={close} delete={() => props.deleteAlbum(props.album.uuid)}/>
             {isOpen ?
                 <div className="album-card">
-                    {Object.getOwnPropertyNames(props.album).map(property => {
+                    {Object.getOwnPropertyNames(album).map(property => {
                         if (props.hiddenProperties.includes(property)) return "";
                         return <AlbumDetail
                             key={property}
-                            title={property}
-                            value={props.album[property]}
+                            property={property}
+                            value={album[property]}
+                            isEditing={editingFields[property]}
+                            handleEditProperty={handleEditProperty}
+                            handleStopEdit={handleStopEdit}
+                            handleValueChange={handleValueChange}
+                            updateAlbum={() => props.updateAlbum(album)}
                         />
                     })}
                 </div> : ""}
             {isOpen ?
-                <div>
-                    {props.pieces?.map(piece =>
-                        <Piece piece={piece} />
+                <div className="album-pieces">
+                    {album.pieces?.map(piece => 
+                        <Piece 
+                            key={piece.uuid} 
+                            hiddenProperties={props.hiddenProperties} 
+                            piece={piece} 
+                            updatePiece={props.updatePiece}
+                            deletePiece={props.deletePiece}
+                        />
                     )}
-                    <button>
+                    <button 
+                        className="add-list-item-button flexc" 
+                        onClick={() => props.createPiece(album.uuid)}
+                    >
                         Add Piece
                     </button>
                 </div>

@@ -1,0 +1,18 @@
+.piece {
+    height: 30px;
+    width: calc(100% - calc(var(--ui-padding) * 2));
+    background-color: var(--ui-primary-background-color);
+    border-radius: var(--ui-border-radius);
+    margin-top: var(--ui-margin);
+    padding: var(--ui-padding);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.piece.open {
+    height: 100%;
+    overflow: hidden;
+    animation: openUIListItem;
+    animation-duration: .3s;
+    cursor: default;
+}

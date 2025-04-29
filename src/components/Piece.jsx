@@ -1,122 +1,144 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import './piece.css';
 
-const EditablePiece = (props) => (
-    <div className="piece">
-        <input className="piece-name">
-            {props.name}
-        </input>
-        <input className="piece-material">
-            {props.material}
-        </input>
-        <input className="piece-dimensions">
-            {props.dimensions}
-        </input>
-        <input className="piece-year-completed">
-            {props.yearCompleted}
-        </input>
-        <input className="piece-description">
-            {props.description}
-        </input>
-        <input className="piece-is-album-cover">
-            {props.isAlbumCover}
-        </input>
-        <input className="piece-index">
-            {props.i}
-        </input>
-    </div>
-)
-
-const VisualPiece = (props) => (
-    <div className="piece">
-        <div className="piece-name">
-            {props.name}
-        </div>
-        <div className="piece-material">
-            {props.material}
-        </div>
-        <div className="piece-dimensions">
-            {props.dimensions}
-        </div>
-        <div className="piece-year-completed">
-            {props.yearCompleted}
-        </div>
-        <div className="piece-description">
-            {props.description}
-        </div>
-        <div className="piece-is-album-cover">
-            {props.isAlbumCover}
-        </div>
-        <div className="piece-index">
-            {props.i}
-        </div>
-    </div>
-)
-
 const EditableValue = (props) => {
-    const [value, setValue] = useState(props.value);
-
-    const handleChange = (event) => {
-        setValue(event.target.value);
-    }
-
     return (
-        <input autoFocus onChange={(e) => handleChange(e)} value={value} className='piece-card-value editable-value'>
-
-        </input>
+        <input 
+            autoFocus 
+            onChange={(e) => props.handleValueChange(e, props.property)} 
+            value={props.value === null ? "" : props.value} 
+            className='list-item-value editable-value'
+        />
     )
 };
 
 const NoneEditableValue = (props) => (
-    <div className='piece-card-value none-editable-value'>
+    <div className='list-item-value none-editable-value'>
         {props.value}
     </div>
 );
 
 
 const PieceDetail = (props) => {
-    const [isEditing, setIsEditing] = useState(false);
-
-    const handleClick = () => {
-        setIsEditing(true);
-    }
-
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            setIsEditing(false);
+            props.handleStopEdit();
+            props.updatePiece();
         }
     }
 
     return (
         <div
             onKeyDown={(e) => { handleKeyDown(e) }}
-            onClick={() => { handleClick() }}
-            id={"album-card-" + props.title.toLowerCase()}
+            onClick={() => { props.handleEditProperty(props.property) }}
+            id={"album-card-" + props.property.toLowerCase()}
+            className='list-item flexc'
         >
-            <div className='album-card-key'>
-                {props.title}
+            <div className='list-item-key flexc'>
+                {props.property}
             </div>
-            {isEditing ?
-                <EditableValue value={props.value} /> :
+            {props.isEditing ?
+                <EditableValue value={props.value} property={props.property} handleValueChange={props.handleValueChange} /> :
                 <NoneEditableValue value={props.value} />
             }
         </div>
     )
 }
 
-const Piece = (props) => {
-    let [isEditing, setIsEditing] = useState(false);
+const PieceBar = (props) => {
+    return (
+        <div className="list-item-bar flexe">
+            {props.isOpen ?
+                <>  
+                    <button 
+                        className="close-list-item-button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            props.close();
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faXmark} />
+                    </button>
+                </> :
+                <div>
+                    {props.piece.name}
+                </div>
+            }
+        </div>
+    )
+} 
 
-    const edit = () => {
-        setIsEditing(!isEditing)
+const Piece = (props) => {
+    const [piece, setPiece] = useState(props.piece);
+    const [value, setValue] = useState(0);
+    const [isOpen, setIsOpen] = useState(false);
+    const [editingFields, setEditingFields] = useState({});
+
+    useEffect(() => {
+        setEditingFields(
+            Object.getOwnPropertyNames(props.piece)
+                .filter(property => !props.hiddenProperties.includes(property))
+                .reduce((acc, property) => {
+                    acc[property] = false;
+                    return acc
+                }, {})
+        );
+    }, [])
+
+    const handleEditProperty = (property) => {
+        handleStopEdit()
+        setEditingFields(editingFields => ({
+            ...editingFields,
+            [property]: true
+        }))
+    }
+
+    const handleStopEdit = () => {
+        setEditingFields(prev => 
+            Object.getOwnPropertyNames(prev)
+            .reduce((acc, property) => {
+                acc[property] = false;
+                return acc
+            }, {})
+        )
+    }
+
+    const handleValueChange = (event, property) => {
+        piece[property] = event.target.value;
+        setPiece(piece);
+        // This stupid little bit of math is just to force re-render for a state that only checks object reference
+        setValue(value => value > 1 ? value - 1 : value + 1);
+    }
+
+    const open = () => {
+        setIsOpen(true)
+    }
+
+    const close = () => {
+        setIsOpen(false)
     }
 
     return (
-        <div className="piece" onClick={() => edit()}>
-            {isEditing ?
-                <EditablePiece props={props} /> :
-                <VisualPiece props={props} />
-            }
+        <div className={isOpen ? "piece open" : "piece"} onClick={() => open()}>
+            <PieceBar piece={piece} isOpen={isOpen} close={close}/>
+            {isOpen ?
+                <div className="piece-card">
+                    {Object.getOwnPropertyNames(piece).map(property => {
+                        if (props.hiddenProperties.includes(property)) return "";
+                        return <PieceDetail
+                            key={property}
+                            property={property}
+                            value={piece[property]}
+                            isEditing={editingFields[property]}
+                            handleEditProperty={handleEditProperty}
+                            handleStopEdit={handleStopEdit}
+                            handleValueChange={handleValueChange}
+                            updatePiece={() => props.updatePiece(piece)}
+                        />
+                    })}
+                </div> : ""}
         </div>
     )
 }
