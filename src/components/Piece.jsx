@@ -98,8 +98,9 @@ const Piece = (props) => {
     useEffect(() => {
         setEditingFields(
             Object.getOwnPropertyNames(props.piece)
-                .filter(property => !props.hiddenProperties.includes(property))
-                .reduce((acc, property) => {
+                .filter(property =>
+                    !props.hiddenProperties.includes(property)
+                ).reduce((acc, property) => {
                     acc[property] = false;
                     return acc
                 }, {})
@@ -131,6 +132,18 @@ const Piece = (props) => {
         }));
     }
 
+    const handleFileChange = (event, file) => {
+        setPiece(piece => {
+            const updatedPiece = {
+                ...piece,
+                file: file.name
+            };
+            props.updatePiece(updatedPiece);
+            props.handleUploadImage(event, file);
+            return updatedPiece;
+        });
+    }
+
     const open = () => {
         setIsOpen(true)
     }
@@ -140,8 +153,31 @@ const Piece = (props) => {
     }
 
     return (
-        <div className={isOpen ? "piece open" : "piece"} onClick={() => open()}>
+        <div
+            style={
+                {
+                    background: piece.file !== null ?
+                        `url(${process.env.REACT_APP_IMAGES_URL}${props.artistUUID}/${piece.file})`
+                        : ""
+                }
+            }
+            className={isOpen ? "piece open" : "piece"}
+            onClick={() => open()}
+        >
             <PieceBar piece={piece} isOpen={isOpen} close={close} delete={() => props.deletePiece(props.piece.uuid)} />
+            {isOpen ?
+                <input
+                    type='file'
+                    accept='image/*'
+                    onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            handleFileChange(e, file)
+                        }
+                    }}
+                /> :
+                ""
+            }
             {isOpen ?
                 <div className="piece-card">
                     {Object.getOwnPropertyNames(piece).map(property => {

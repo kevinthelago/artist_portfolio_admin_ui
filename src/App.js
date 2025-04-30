@@ -253,6 +253,26 @@ const App = () => {
         )
     }
 
+    const handleUploadImage = (event, file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch(
+            process.env.REACT_APP_IMAGES_URL + artist.uuid + "/" + file.name,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': file.type
+                },
+                body: formData
+            }
+        ).then(response => 
+            console.log(response)
+        ).catch(error => 
+            console.log(error)
+        )
+    }
+
     return (
         <div id='app'>
             <div id='artist-card'>
@@ -276,6 +296,7 @@ const App = () => {
                     <Album
                         key={album.uuid}
                         hiddenProperties={hiddenProperties}
+                        artistUUID={artist.uuid}
                         album={album}
                         pieces={album.pieces}
                         createPiece={createPiece}
@@ -283,6 +304,7 @@ const App = () => {
                         deletePiece={deletePiece}
                         updateAlbum={updateAlbum}
                         deleteAlbum={deleteAlbum}
+                        handleUploadImage={handleUploadImage}
                     />
                 )}
                 <button

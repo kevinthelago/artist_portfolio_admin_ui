@@ -92,8 +92,6 @@ const AlbumBar = (props) => {
 
 const Album = (props) => {
     const [album, setAlbum] = useState(props.album);
-    // const [pieces, setPieces] = useState(props.album.pieces);
-    const [value, setValue] = useState(0);
     const [isOpen, setIsOpen] = useState(false);
     const [editingFields, setEditingFields] = useState({});
 
@@ -165,10 +163,12 @@ const Album = (props) => {
                     {props.pieces?.map(piece => 
                         <Piece 
                             key={piece.uuid} 
+                            artistUUID={props.artistUUID}
                             hiddenProperties={props.hiddenProperties} 
                             piece={piece} 
                             updatePiece={props.updatePiece}
                             deletePiece={props.deletePiece}
+                            handleUploadImage={props.handleUploadImage}
                         />
                     )}
                     <button 
