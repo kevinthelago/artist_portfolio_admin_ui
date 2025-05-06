@@ -1,5 +1,5 @@
 .album {
-    height: 30px;
+    min-height: 30px;
     width: calc(100% - calc(var(--ui-padding) * 2));
     background-color: var(--ui-primary-background-color);
     border-radius: var(--ui-border-radius);
