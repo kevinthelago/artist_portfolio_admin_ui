@@ -8,7 +8,7 @@
 }
 
 .list-item {
-  height: var(--ui-list-item-height);
+  min-height: var(--ui-list-item-height);
   width: 100%;
 }
 
