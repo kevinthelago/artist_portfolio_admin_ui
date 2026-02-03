@@ -105,7 +105,7 @@ const Piece = (props) => {
                     return acc
                 }, {})
         );
-    }, [])
+    }, [props])
 
     const handleEditProperty = (property) => {
         handleStopEdit()

@@ -104,7 +104,7 @@ const Album = (props) => {
                     return acc
                 }, {})
         );
-    }, [])
+    }, [props])
 
     const handleEditProperty = (property) => {
         handleStopEdit()

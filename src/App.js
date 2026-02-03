@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Album from './components/Album';
 import './app.css';
 import './reset.css';
@@ -47,7 +47,7 @@ const ArtistDetail = (props) => {
 }
 
 const App = () => {
-    const hiddenProperties = ["uuid", "albums", "pieces", "url", "file"]
+    const hiddenProperties = ["uuid", "albums", "pieces", "url", "file"];
     const [editingFields, setEditingFields] = useState({});
     const [artist, setArtist] = useState({
         albums: [],
@@ -76,7 +76,7 @@ const App = () => {
         }).catch(error => {
             console.log(error);
         })
-    }, []);
+    }, [artist, hiddenProperties]);
 
     const updateArtist = () => {
         fetch(
