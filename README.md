@@ -1,70 +1,40 @@
-# Getting Started with Create React App
+# Artist Portfolio Admin UI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React admin dashboard for managing an artist portfolio. Allows editing artist profile fields, managing albums, adding/removing artwork pieces, and uploading images — all backed by a REST API.
 
-## Available Scripts
+## Setup
 
-In the project directory, you can run:
+```bash
+npm install
+```
 
-### `npm start`
+Configure `.env` with the backend URL and artist UUID:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```env
+REACT_APP_PUBLIC_URL=https://your-backend.herokuapp.com
+REACT_APP_ARTISTS_URL=${REACT_APP_PUBLIC_URL}/api/v1/artists/
+REACT_APP_ALBUMS_URL=${REACT_APP_PUBLIC_URL}/api/v1/albums/
+REACT_APP_PIECES_URL=${REACT_APP_PUBLIC_URL}/api/v1/pieces/
+REACT_APP_IMAGES_URL=${REACT_APP_PUBLIC_URL}/api/v1/images/
+REACT_APP_ARTIST_UUID=<artist-uuid>
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Development
 
-### `npm test`
+```bash
+npm start       # dev server at http://localhost:3000
+npm run build   # production build → build/
+npm test        # run tests
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Architecture
 
-### `npm run build`
+Manages a three-level portfolio hierarchy: **Artist → Albums → Pieces**. All state is held in `App.js` as a single nested `artist` object and passed down via props — there is no state management library.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The app produces two HTML pages: `admin.html` (the React SPA) and `login.html` (a redirect to Google OAuth2, handled by the backend).
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Every field is inline-editable: click to edit, Enter or blur to save and persist via PUT.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Backend
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Pairs with a Spring Boot REST API. Authentication is handled by the backend via Spring Security + Google OAuth2. The `login.html` page redirects to `/oauth2/authorization/google`.
